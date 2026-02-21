@@ -1,0 +1,122 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ═══════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════
+    
+    // Cek apakah user sudah login
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Cek apakah user adalah admin
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Cek apakah user adalah pemilik data
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Validasi data booking
+    function isValidBooking(booking) {
+      return booking.keys().hasAll(['nama', 'wa', 'car', 'startDate', 'endDate', 'days', 'totalPrice'])
+        && booking.nama is string
+        && booking.nama.size() > 0
+        && booking.wa is string
+        && booking.wa.size() > 0
+        && booking.totalPrice is number
+        && booking.totalPrice > 0;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // COLLECTION: bookings
+    // ═══════════════════════════════════════════════════════════
+    match /bookings/{bookingId} {
+      // CREATE: Semua orang bisa buat booking (untuk form booking publik)
+      allow create: if isValidBooking(request.resource.data);
+      
+      // READ: Admin bisa baca semua, user bisa baca booking mereka sendiri
+      allow read: if isAdmin();
+      
+      // UPDATE: Hanya admin yang bisa update
+      allow update: if isAdmin()
+        && (
+          // Validasi field yang boleh diupdate
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'paymentStatus', 'paymentMethod', 'driverName', 'driverPhone', 'vehiclePlate', 'invoiceUrl', 'carPhotos', 'confirmedAt', 'completedAt'])
+        );
+      
+      // DELETE: Hanya admin yang bisa hapus
+      allow delete: if isAdmin();
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // COLLECTION: cars
+    // ═══════════════════════════════════════════════════════════
+    match /cars/{carId} {
+      // READ: Semua orang bisa lihat daftar mobil
+      allow read: if true;
+      
+      // WRITE: Hanya admin yang bisa create/update/delete
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // COLLECTION: rekening
+    // ═══════════════════════════════════════════════════════════
+    match /rekening/{rekId} {
+      // READ: Hanya admin yang bisa lihat data rekening (untuk keamanan)
+      allow read: if isAdmin();
+      
+      // WRITE: Hanya admin yang bisa create/update/delete
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // COLLECTION: admins
+    // ═══════════════════════════════════════════════════════════
+    match /admins/{adminId} {
+      // READ: Hanya admin yang bisa lihat daftar admin
+      allow read: if isAdmin();
+      
+      // WRITE: Hanya admin yang bisa create/update/delete
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // COLLECTION: auditLogs
+    // ═══════════════════════════════════════════════════════════
+    match /auditLogs/{logId} {
+      // READ: Hanya admin yang bisa lihat log
+      allow read: if isAdmin();
+      
+      // CREATE: Hanya function yang bisa create log
+      allow create: if false; // Dibuat otomatis oleh Cloud Functions
+      
+      // UPDATE/DELETE: Tidak boleh
+      allow update, delete: if false;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // COLLECTION: backups
+    // ═══════════════════════════════════════════════════════════
+    match /backups/{backupId} {
+      // READ: Hanya admin yang bisa lihat backup
+      allow read: if isAdmin();
+      
+      // WRITE: Hanya function yang bisa create backup
+      allow create, update, delete: if false;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // DEFAULT: Deny all
+    // ═══════════════════════════════════════════════════════════
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

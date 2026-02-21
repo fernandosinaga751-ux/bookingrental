@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drive Zone — Status Pesanan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;
+      --accent:#f0c040;--accent2:#e05a00;--text:#f5f5f5;--muted:#888;--border:#2e2e2e;
+      --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;
+      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;background-clip:text}
+    .topbar-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+      background:rgba(240,192,64,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+
+    .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px}
+
+    .stepper{display:flex;align-items:flex-start;margin:16px 0 6px}
+    .step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+    .step:not(:last-child)::after{content:'';position:absolute;top:16px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+    .step:not(:last-child).step-done::after{background:var(--accent)}
+    .step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);
+      background:var(--surface);display:flex;align-items:center;justify-content:center;
+      font-size:13px;z-index:1;position:relative;transition:all .3s}
+    .step-done .step-circle{border-color:var(--accent);background:rgba(240,192,64,.15);color:var(--accent)}
+    .step-current .step-circle{border-color:var(--accent);background:var(--accent);color:#000;box-shadow:0 0 0 4px rgba(240,192,64,.2)}
+    .step-label{font-size:10px;font-weight:600;text-align:center;margin-top:6px;color:var(--muted);letter-spacing:.5px;line-height:1.3;padding:0 2px}
+    .step-done .step-label,.step-current .step-label{color:var(--text)}
+
+    .section-head{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--accent);
+      display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:16px}
+    .section-head::after{content:'';flex:1;height:1px;background:var(--border)}
+    .section-head:first-child{margin-top:0}
+
+    .info-row{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+    .info-row:last-child{border-bottom:none}
+    .info-label{color:var(--muted);font-size:12px;min-width:120px;flex-shrink:0;padding-top:1px}
+    .info-value{font-size:13px;font-weight:500;flex:1;word-break:break-word}
+
+    .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
+      letter-spacing:.5px;padding:4px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+    .badge-pending {background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+    .badge-confirmed{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+    .badge-active  {background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .badge-completed{background:rgba(136,136,136,.15);color:var(--muted);border:1px solid rgba(136,136,136,.3)}
+    .badge-paid    {background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .badge-unpaid  {background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+    .badge-airport {background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+
+    .alert{border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5}
+    .alert-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:var(--blue)}
+    .alert-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+    .alert-warning{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:var(--orange)}
+    .alert-done{background:rgba(136,136,136,.08);border:1px solid rgba(136,136,136,.2);color:var(--muted)}
+
+    .plate{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--accent)}
+
+    .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+    .photo-item{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+    .photo-item img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+
+    .btn{border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;
+      font-size:13px;font-weight:600;padding:9px 18px;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+    .btn:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent);opacity:1}
+
+    .car-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+    .car-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+    .car-img{width:80px;height:50px;object-fit:contain;border-radius:6px}
+    .car-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent)}
+    .car-driver{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:8px;padding:12px;margin-top:10px}
+    .car-driver-title{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+
+    .loading{display:flex;align-items:center;justify-content:center;padding:60px 20px}
+    .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .fade-up{animation:fadeUp .5s ease both}
+    .pulse{animation:pulse 2s infinite}
+
+    @media(max-width:560px){
+      .info-label{min-width:100px}
+      .topbar{padding:10px 16px}
+      .car-img{width:60px;height:40px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">Drive Zone</div>
+  <div class="topbar-tag">Status Pesanan</div>
+</div>
+
+<div id="heroBanner" style="background:linear-gradient(135deg,#0d0d0d,#1a0f00);padding:28px 20px;text-align:center;border-bottom:1px solid var(--border)">
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Tracking Pesanan</div>
+  <div id="heroStatus"></div>
+  <div id="heroId" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,5vw,24px);letter-spacing:4px;color:var(--muted);margin-top:4px"></div>
+</div>
+
+<div class="wrap" style="padding-top:20px;padding-bottom:60px" id="main">
+  <div class="loading">
+    <div class="loading-spinner"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// FIREBASE CONFIG - GANTI DENGAN CONFIG ANDA
+// ═══════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "GANTI_DENGAN_API_KEY_ANDA",
+  authDomain: "drive-zone-rental.firebaseapp.com",
+  projectId: "drive-zone-rental",
+  storageBucket: "drive-zone-rental.appspot.com",
+  messagingSenderId: "GANTI_DENGAN_SENDER_ID",
+  appId: "GANTI_DENGAN_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+const fmtD = v => { 
+  if(!v) return '-'; 
+  const d = new Date(v + 'T00:00:00');
+  return d.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'}); 
+};
+const fmtDT = v => { 
+  if(!v) return '-'; 
+  const d = v.toDate ? v.toDate() : new Date(v);
+  return d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) + ' ' + 
+         d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}); 
+};
+
+function statusBadge(s) {
+  const M = {
+    pending: {c:'badge-pending', i:'⏳', t:'Menunggu Konfirmasi'},
+    confirmed: {c:'badge-confirmed', i:'✅', t:'Dikonfirmasi'},
+    active: {c:'badge-active', i:'🚗', t:'Sedang Berjalan'},
+    completed: {c:'badge-completed', i:'🏁', t:'Selesai'},
+  };
+  const v = M[s] || M.pending;
+  return `<span class="badge ${v.c}">${v.i} ${v.t}</span>`;
+}
+
+function payBadge(s) {
+  return s === 'paid'
+    ? '<span class="badge badge-paid">✓ Lunas</span>'
+    : '<span class="badge badge-unpaid">✗ Belum Bayar</span>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+
+const CAR_IMAGES = {
+  avanza: '1000537007.png',
+  innova_reborn: '1000537006.jpg',
+  innova_zenix: '1000537006.jpg',
+  fortuner: '1000537008.jpg',
+  pajero: '1000537014.jpg',
+  alphard_2023: '1000537012.jpg',
+  alphard_2025: '1000537013.jpg',
+  hiace_commuter: '1000537011.jpg',
+  hiace_premio: '1000537010.jpg',
+};
+
+async function load() {
+  const main = document.getElementById('main');
+  
+  if(!id) { 
+    showError(main, 'ID Pesanan tidak ditemukan di URL.'); 
+    return; 
+  }
+
+  try {
+    const doc = await db.collection('bookings').doc(id).get();
+    
+    if(!doc.exists) { 
+      showError(main, `Pesanan <strong>${id}</strong> tidak ditemukan.<br>Pastikan link yang Anda gunakan benar.`); 
+      return; 
+    }
+
+    const b = doc.data();
+    const rs = b.status;
+
+    // Hero
+    document.getElementById('heroStatus').innerHTML = statusBadge(rs);
+    document.getElementById('heroId').textContent = id;
+
+    // Steps
+    const STEPS = [
+      {key:'pending', icon:'📋', label:'Pesanan\nDiterima'},
+      {key:'confirmed', icon:'✅', label:'Dikonfirmasi'},
+      {key:'active', icon:'🚗', label:'Sedang\nBerjalan'},
+      {key:'completed', icon:'🏁', label:'Selesai'},
+    ];
+    const ORD = {pending:0, confirmed:1, active:2, completed:3};
+    const ci = ORD[rs] || 0;
+
+    const stepperHtml = STEPS.map((s,i) => {
+      const done = i < ci, cur = i === ci;
+      return `<div class="step ${done?'step-done':''} ${cur?'step-current':''}">
+        <div class="step-circle">${done?'✓':s.icon}</div>
+        <div class="step-label">${s.label.replace('\n','<br>')}</div>
+      </div>`;
+    }).join('');
+
+    // Banner
+    const banners = {
+      pending: `<div class="alert alert-warning">⏳ <strong>Menunggu konfirmasi.</strong> Admin kami akan menghubungi Anda via WhatsApp segera.</div>`,
+      confirmed: `<div class="alert alert-info">✅ <strong>Pesanan dikonfirmasi!</strong> Bersiaplah untuk tanggal sewa Anda.</div>`,
+      active: `<div class="alert alert-success pulse">🚗 <strong>Kendaraan sedang berjalan.</strong> Selamat menikmati perjalanan!</div>`,
+      completed: `<div class="alert alert-done">🏁 <strong>Masa sewa selesai.</strong> Terima kasih telah menggunakan Drive Zone!</div>`,
+    };
+    const banner = banners[rs] || '';
+
+    // Tipe pesanan badge
+    const tipeBadge = b.tipePesanan === 'airport' 
+      ? '<span class="badge badge-airport">✈️ Airport Transfer</span>' 
+      : '<span class="badge badge-confirmed">🚗 Rental Mobil</span>';
+
+    const carImg = CAR_IMAGES[b.car] || '1000537007.png';
+    const showDriver = ['confirmed','active','completed'].includes(rs);
+
+    // Kendaraan section
+    const kendaraanSection = `
+    <div class="section-head">🚙 Kendaraan</div>
+    <div class="car-card fade-up">
+      <div class="car-header">
+        <img src="${carImg}" alt="${b.carLabel}" class="car-img" onerror="this.style.display='none'">
+        <div>
+          <div class="car-title">${b.carLabel || '-'}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">${b.withDriver ? 'Dengan Supir (Gratis)' : 'Lepas Kunci (Mandiri)'}</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Jenis</span>
+        <span class="info-value">${b.carLabel || '-'}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Supir</span>
+        <span class="info-value">${b.withDriver ? 'Dengan Supir (Gratis)' : 'Lepas Kunci (Mandiri)'}</span>
+      </div>
+      ${showDriver && (b.vehiclePlate || b.driverName) ? `
+      <div class="car-driver">
+        <div class="car-driver-title">🧑‍✈️ Info Driver & Kendaraan</div>
+        ${b.vehiclePlate ? `
+        <div class="info-row" style="border:none;padding:4px 0">
+          <span class="info-label">No. Polisi</span>
+          <span class="info-value"><span class="plate">${b.vehiclePlate}</span></span>
+        </div>` : ''}
+        ${b.driverName ? `
+        <div class="info-row" style="border:none;padding:4px 0">
+          <span class="info-label">Nama Driver</span>
+          <span class="info-value">${b.driverName}</span>
+        </div>` : ''}
+        ${b.driverPhone ? `
+        <div class="info-row" style="border:none;padding:4px 0">
+          <span class="info-label">Kontak Driver</span>
+          <span class="info-value">
+            <a href="https://wa.me/${b.driverPhone.replace(/^0/,'62')}" target="_blank" style="color:var(--green);font-weight:600">
+              📱 ${b.driverPhone}
+            </a>
+          </span>
+        </div>` : ''}
+      </div>
+      ` : ''}
+    </div>`;
+
+    // Payment
+    const paySection = `
+    <div class="section-head">💰 Pembayaran</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+      <div class="info-row"><span class="info-label">Status Bayar</span><span class="info-value">${payBadge(b.paymentStatus)}</span></div>
+      <div class="info-row"><span class="info-label">Total Biaya</span><span class="info-value" style="font-weight:700;font-size:15px;color:var(--accent)">${fmt(b.totalPrice)}</span></div>
+      ${b.paymentStatus==='paid' && b.paymentMethod ? `<div class="info-row"><span class="info-label">Metode</span><span class="info-value">${b.paymentMethod}</span></div>` : ''}
+      ${b.paymentStatus==='unpaid' ? `<div style="margin-top:10px"><div class="alert alert-warning" style="margin:0">💳 Silakan lakukan pembayaran sesuai instruksi admin via WhatsApp.</div></div>` : ''}
+    </div>`;
+
+    // Invoice
+    const invSection = b.invoiceUrl ? `
+    <div class="section-head">🧾 Invoice</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center">
+      <div style="font-size:36px;margin-bottom:8px">🧾</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:14px">Invoice telah diunggah oleh admin</p>
+      <a href="${b.invoiceUrl}" download="Invoice-${b.id}"
+        style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#f0c040,#e05a00);
+        border-radius:10px;color:#000;font-weight:600;font-size:13px;padding:10px 24px;text-decoration:none">
+        ⬇️ Download Invoice
+      </a>
+    </div>` : '';
+
+    // Car photos
+    const photoSection = b.carPhotos?.length ? `
+    <div class="section-head">📸 Foto Kendaraan</div>
+    <div class="photo-grid">
+      ${b.carPhotos.map(u=>`<div class="photo-item"><img src="${u}" alt="Foto" onclick="window.open(this.src,'_blank')"></div>`).join('')}
+    </div>` : '';
+
+    main.innerHTML = `
+    <div class="card fade-up">
+      <div class="stepper">${stepperHtml}</div>
+      ${banner}
+      <div style="font-size:11px;color:var(--muted);text-align:right;margin-top:6px">Terakhir diperiksa: ${new Date().toLocaleString('id-ID')}</div>
+    </div>
+
+    <div class="card fade-up" style="animation-delay:.1s">
+      <div class="section-head">📋 Detail Pesanan</div>
+      <div class="info-row"><span class="info-label">ID Pesanan</span>
+        <span class="info-value" style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:var(--accent);font-size:15px">${b.id}</span></div>
+      <div class="info-row"><span class="info-label">Tipe</span><span class="info-value">${tipeBadge}</span></div>
+      <div class="info-row"><span class="info-label">Tanggal Pesan</span><span class="info-value">${b.createdAt?.toDate?.().toLocaleString('id-ID') || '-'}</span></div>
+      <div class="info-row"><span class="info-label">Nama Penyewa</span><span class="info-value">${b.nama}</span></div>
+      <div class="info-row"><span class="info-label">No. WhatsApp</span><span class="info-value">${b.wa}</span></div>
+      <div class="info-row"><span class="info-label">Tanggal Penjemputan</span><span class="info-value">${fmtD(b.startDate)} pukul ${b.waktu || '-'}</span></div>
+      ${b.tipePesanan !== 'airport' ? `<div class="info-row"><span class="info-label">Tanggal Pengembalian</span><span class="info-value">${fmtD(b.endDate)}</span></div>` : ''}
+      <div class="info-row"><span class="info-label">Durasi</span><span class="info-value">${b.days} hari</span></div>
+      <div class="info-row"><span class="info-label">Lokasi</span><span class="info-value">${b.lokasi || '-'}</span></div>
+      ${b.catatan && b.catatan !== '-' ? `<div class="info-row"><span class="info-label">Catatan</span><span class="info-value">${b.catatan}</span></div>` : ''}
+    </div>
+
+    <div class="fade-up" style="animation-delay:.2s">${kendaraanSection}</div>
+    <div class="card fade-up" style="animation-delay:.3s">${paySection}</div>
+    ${invSection ? `<div class="card fade-up" style="animation-delay:.4s">${invSection}</div>` : ''}
+    ${photoSection ? `<div class="card fade-up" style="animation-delay:.5s">${photoSection}</div>` : ''}
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding-bottom:20px">
+      <button class="btn btn-outline" onclick="load()">🔄 Refresh Status</button>
+      <button class="btn btn-outline" onclick="copyLink()">📋 Salin Link</button>
+      <a href="/" style="text-decoration:none"><button class="btn btn-outline">➕ Pesanan Baru</button></a>
+    </div>`;
+
+  } catch (error) {
+    console.error('Error loading booking:', error);
+    showError(main, 'Terjadi kesalahan saat memuat data. Silakan coba lagi.');
+  }
+}
+
+function showError(main, msg) {
+  document.getElementById('heroStatus').innerHTML = '<span class="badge badge-unpaid">❌ Tidak Ditemukan</span>';
+  main.innerHTML = `
+  <div class="card" style="text-align:center;padding:40px 24px">
+    <div style="font-size:48px;margin-bottom:14px">🔍</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent);margin-bottom:8px">Pesanan Tidak Ditemukan</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:20px">${msg}</p>
+    <a href="/" style="text-decoration:none"><button class="btn btn-outline">← Kembali ke Form Booking</button></a>
+  </div>`;
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href)
+    .then(() => alert('✅ Link tracking berhasil disalin!'));
+}
+
+// Init
+load();
+</script>
+</body>
+</html>
