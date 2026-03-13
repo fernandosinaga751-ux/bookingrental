@@ -472,7 +472,7 @@
 <script>
 // ─── CONFIG ───────────────────────────────────
 const ADMIN_PASS = 'admin123';
-const TRACKING_URL = 'tracking.html';
+const TRACKING_URL = '/tracking';
 
 // Default cars data
 const DEFAULT_CARS = {
@@ -553,7 +553,7 @@ function toast(msg) {
 }
 
 function trackUrl(id) {
-  return `${window.location.origin}${window.location.pathname.replace('admin.html','')}${TRACKING_URL}?id=${id}`;
+  return `${window.location.origin}${TRACKING_URL}?id=${id}`;
 }
 
 // ─── Auth ────────────────────────────────────
