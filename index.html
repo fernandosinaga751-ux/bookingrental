@@ -3,37 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drive Zone — Booking Rental Mobil Medan</title>
+  <title>Dearma Rental Mobil — Booking Rental Mobil Medan</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;
-      --accent:#f0c040;--accent2:#e05a00;--text:#f5f5f5;--muted:#888;--border:#2e2e2e;
+      --accent:#1a7fc4;--accent2:#0d5a94;--text:#f5f5f5;--muted:#888;--border:#2e2e2e;
       --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316;
     }
     body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
     .hidden{display:none!important}
 
     /* Topbar */
-    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;
       display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-    .topbar-brand{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;background-clip:text}
+    .topbar-logo{height:38px;object-fit:contain}
     .topbar-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
-      background:rgba(240,192,64,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+      background:rgba(26,127,196,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
 
     /* Hero */
-    .hero{background:linear-gradient(135deg,#0d0d0d 40%,#1a0f00 100%);
-      padding:52px 24px 0;text-align:center;position:relative;overflow:hidden}
+    .hero{background:linear-gradient(135deg,#0d0d0d 40%,#071520 100%);
+      padding:44px 24px 0;text-align:center;position:relative;overflow:hidden}
     .hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);
-      width:600px;height:600px;background:radial-gradient(circle,rgba(240,192,64,.12) 0%,transparent 70%)}
-    .brand-xl{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,11vw,90px);letter-spacing:6px;line-height:1;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;background-clip:text;animation:fadeUp .7s ease both}
-    .hero-sub{color:var(--muted);font-size:13px;letter-spacing:4px;text-transform:uppercase;margin-top:6px;animation:fadeUp .7s .1s ease both}
-    .hero-car{font-size:84px;margin-top:24px;filter:drop-shadow(0 0 40px rgba(240,192,64,.3));animation:fadeUp .7s .2s ease both}
+      width:600px;height:600px;background:radial-gradient(circle,rgba(26,127,196,.12) 0%,transparent 70%)}
+    .hero-logo{height:70px;object-fit:contain;margin-bottom:12px;filter:drop-shadow(0 4px 24px rgba(26,127,196,.4));animation:fadeUp .7s ease both}
+    .hero-sub{color:var(--muted);font-size:13px;letter-spacing:4px;text-transform:uppercase;margin-top:4px;animation:fadeUp .7s .1s ease both}
+    .hero-car{font-size:72px;margin-top:20px;filter:drop-shadow(0 0 30px rgba(26,127,196,.3));animation:fadeUp .7s .2s ease both}
 
     /* Form wrap */
     .form-wrap{max-width:720px;margin:-20px auto 60px;padding:0 16px;animation:fadeUp .8s .3s ease both}
@@ -47,7 +43,7 @@
     input,select,textarea{background:var(--surface);border:1px solid var(--border);border-radius:10px;
       color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:11px 14px;
       transition:border-color .2s,box-shadow .2s;width:100%;outline:none}
-    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,192,64,.1)}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,196,.1)}
     select option{background:#1e1e1e}
     textarea{resize:vertical;min-height:70px}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -63,25 +59,34 @@
     .car-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;
       padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;overflow:hidden}
     .car-card:hover{border-color:var(--muted);transform:translateY(-2px)}
-    .car-card.selected{border-color:var(--accent);background:rgba(240,192,64,.05)}
+    .car-card.selected{border-color:var(--accent);background:rgba(26,127,196,.05)}
     .car-card input[type=radio]{display:none}
     .car-img{width:100%;height:80px;object-fit:contain;margin-bottom:8px;border-radius:6px}
     .car-name{font-size:11px;font-weight:600;letter-spacing:1px;line-height:1.3}
     .car-price{font-size:11px;color:var(--accent);margin-top:4px}
 
     /* Toggle */
-    .toggle-row{display:flex;gap:10px}
+    .toggle-row{display:flex;gap:10px;flex-wrap:wrap}
     .toggle-btn{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:10px;
       color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
-      padding:12px 8px;transition:all .2s;line-height:1.5;text-align:center}
-    .toggle-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(240,192,64,.07)}
+      padding:12px 8px;transition:all .2s;line-height:1.5;text-align:center;min-width:120px}
+    .toggle-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(26,127,196,.07)}
+
+    /* All In Box */
+    .allin-box{background:rgba(26,127,196,.07);border:1px solid rgba(26,127,196,.3);border-radius:12px;
+      padding:14px 18px;margin-top:10px;margin-bottom:6px;display:none}
+    .allin-box.show{display:block}
+    .allin-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px}
+    .allin-include{display:flex;flex-direction:column;gap:5px}
+    .allin-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text)}
+    .allin-item::before{content:'✓';color:var(--green);font-weight:700;font-size:14px}
 
     /* Summary */
     .summary-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px}
 
     /* Submit btn */
     .btn-xl{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;
-      color:#000;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;
+      color:#fff;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;
       padding:16px;width:100%;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
     .btn-xl:hover{opacity:.9;transform:translateY(-2px)}
 
@@ -96,7 +101,7 @@
     .btn{border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;
       font-size:13px;font-weight:600;padding:10px 20px;transition:all .2s}
     .btn:hover{opacity:.88;transform:translateY(-1px)}
-    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
     .btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
     .btn-outline:hover{border-color:var(--accent);color:var(--accent);opacity:1}
     .w-full{width:100%}
@@ -113,13 +118,13 @@
 
 <!-- Topbar -->
 <div class="topbar">
-  <div class="topbar-brand">Drive Zone</div>
+  <img src="dearmajaya-logo.png" alt="Dearma Rental Mobil" class="topbar-logo">
   <div class="topbar-tag">Form Booking</div>
 </div>
 
 <!-- Hero -->
 <div class="hero">
-  <div class="brand-xl">Drive Zone</div>
+  <img src="dearmajaya-logo.png" alt="Dearma Rental Mobil" class="hero-logo">
   <div class="hero-sub">Rental Mobil Medan • Bandara Kualanamu</div>
   <div class="hero-car">🚗</div>
 </div>
@@ -178,14 +183,14 @@
         </div>
       </div>
 
-      <!-- Alamat Penjemputan (muncul jika Kota Medan) -->
+      <!-- Alamat Penjemputan -->
       <div class="field hidden" id="alamatField">
         <label class="field-label">Alamat Penjemputan *</label>
         <textarea id="fAlamat" placeholder="Masukkan alamat lengkap penjemputan..."></textarea>
       </div>
 
       <div class="field">
-        <label class="field-label">Dengan / Tanpa Supir</label>
+        <label class="field-label">Tipe Layanan</label>
         <div class="toggle-row">
           <button type="button" id="bD0" class="toggle-btn active" onclick="togDriver(0)">
             🧑‍✈️ Dengan Supir
@@ -193,7 +198,21 @@
           <button type="button" id="bD1" class="toggle-btn" onclick="togDriver(1)">
             🔑 Lepas Kunci
           </button>
+          <button type="button" id="bD2" class="toggle-btn" onclick="togDriver(2)">
+            🏙️ Mobil Supir All In Dalam Kota
+          </button>
         </div>
+      </div>
+
+      <!-- All In Dalam Kota Info Box -->
+      <div class="allin-box" id="allinBox">
+        <div class="allin-title">🏙️ Pemakaian Dalam Kota Medan</div>
+        <div class="allin-include">
+          <div class="allin-item">Mobil &amp; Supir</div>
+          <div class="allin-item">BBM (Bahan Bakar Minyak)</div>
+          <div class="allin-item">Makan Supir</div>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted)">Harga sudah termasuk semua biaya di atas. Tidak ada biaya tambahan.</div>
       </div>
 
       <div class="field">
@@ -232,20 +251,19 @@
 
 <script>
 // ─── CONFIG ───────────────────────────────────
-const WA_NUMBER = '6281234567890'; // ← Ganti nomor WA bisnis Anda
+const WA_NUMBER = '6281234567890';
 const TRACKING_URL = '/tracking';
 
-// Data mobil dengan gambar
-const CARS = {
-  avanza: {label:'New Avanza 2024',price:350000,img:'1000537007.png'},
-  innova_reborn: {label:'Innova Reborn',price:500000,img:'1000537006.jpg'},
-  innova_zenix: {label:'Innova Zenix',price:550000,img:'1000537006.jpg'},
-  fortuner: {label:'Fortuner 2024',price:750000,img:'1000537008.jpg'},
-  pajero: {label:'Pajero 2024',price:800000,img:'1000537014.jpg'},
-  alphard_2023: {label:'Alphard 2023',price:1500000,img:'1000537012.jpg'},
-  alphard_2025: {label:'New Alphard 2025',price:1800000,img:'1000537013.jpg'},
-  hiace_commuter: {label:'Hiace Commuter',price:900000,img:'1000537011.jpg'},
-  hiace_premio: {label:'Hiace Premio',price:1100000,img:'1000537010.jpg'},
+const DEFAULT_CARS = {
+  avanza: {label:'New Avanza 2024',price:350000,priceAllin:450000,img:'1000537007.png'},
+  innova_reborn: {label:'Innova Reborn',price:500000,priceAllin:650000,img:'1000537006.jpg'},
+  innova_zenix: {label:'Innova Zenix',price:550000,priceAllin:700000,img:'1000537006.jpg'},
+  fortuner: {label:'Fortuner 2024',price:750000,priceAllin:950000,img:'1000537008.jpg'},
+  pajero: {label:'Pajero 2024',price:800000,priceAllin:1000000,img:'1000537014.jpg'},
+  alphard_2023: {label:'Alphard 2023',price:1500000,priceAllin:1800000,img:'1000537012.jpg'},
+  alphard_2025: {label:'New Alphard 2025',price:1800000,priceAllin:2100000,img:'1000537013.jpg'},
+  hiace_commuter: {label:'Hiace Commuter',price:900000,priceAllin:1100000,img:'1000537011.jpg'},
+  hiace_premio: {label:'Hiace Premio',price:1100000,priceAllin:1350000,img:'1000537010.jpg'},
 };
 
 // ─── DB ───────────────────────────────────────
@@ -258,15 +276,30 @@ const DB = {
   }
 };
 
+const SettingsDB = {
+  getCars(){
+    const saved = localStorage.getItem('dz_cars');
+    return saved ? JSON.parse(saved) : DEFAULT_CARS;
+  }
+};
+
+let CARS = SettingsDB.getCars();
+
+// Ensure allin prices exist
+Object.keys(CARS).forEach(k => {
+  if(!CARS[k].priceAllin) CARS[k].priceAllin = Math.round(CARS[k].price * 1.3);
+});
+
 // ─── Render Car Grid ──────────────────────────
 function renderCarGrid() {
   const grid = document.getElementById('carGrid');
+  const showAllin = driverMode === 2;
   grid.innerHTML = Object.entries(CARS).map(([key, car], idx) => `
     <label class="car-card ${idx===0?'selected':''}" onclick="selCar(this, '${key}')">
       <input type="radio" name="car" value="${key}" ${idx===0?'checked':''}>
       <img src="${car.img}" alt="${car.label}" class="car-img">
       <div class="car-name">${car.label}</div>
-      <div class="car-price">${fmt(car.price)}/hari</div>
+      <div class="car-price">${fmt(showAllin && car.priceAllin ? car.priceAllin : car.price)}/hari</div>
     </label>
   `).join('');
 }
@@ -295,6 +328,16 @@ function togDriver(m) {
   driverMode = m;
   document.getElementById('bD0').classList.toggle('active', m===0);
   document.getElementById('bD1').classList.toggle('active', m===1);
+  document.getElementById('bD2').classList.toggle('active', m===2);
+  // Show/hide all-in box
+  document.getElementById('allinBox').classList.toggle('show', m===2);
+  // Re-render car grid to update price display
+  renderCarGrid();
+  // Re-select current car
+  const cards = document.querySelectorAll('.car-card');
+  const carKeys = Object.keys(CARS);
+  const idx = carKeys.indexOf(selectedCar);
+  if(idx >= 0 && cards[idx]) cards[idx].classList.add('selected');
   calcEst();
 }
 
@@ -302,7 +345,6 @@ function toggleAlamat() {
   const lokasi = document.getElementById('fLok').value;
   const alamatField = document.getElementById('alamatField');
   const fAlamat = document.getElementById('fAlamat');
-  
   if(lokasi === 'Kota Medan') {
     alamatField.classList.remove('hidden');
     fAlamat.required = true;
@@ -317,50 +359,37 @@ function calcEst() {
   const s = document.getElementById('fStart').value;
   const e = document.getElementById('fEnd').value;
   if(!s||!e) return;
-  
-  // Hitungan hari baru: tanggal sama = 1 hari
   const startDate = new Date(s+'T00:00:00');
   const endDate = new Date(e+'T00:00:00');
-  const diffTime = endDate - startDate;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const days = diffDays + 1; // +1 karena tanggal sama = 1 hari
-  
+  const diffDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+  const days = diffDays + 1;
   if(days <= 0) return;
-  
   const car = CARS[selectedCar];
-  const carPrice = car.price * days;
-  // Supir tidak ada biaya tambahan (gratis)
-  const total = carPrice;
-  
+  const harga = driverMode === 2 && car.priceAllin ? car.priceAllin : car.price;
+  const total = harga * days;
+  const tipeLbl = driverMode === 2 ? '🏙️ All In Dalam Kota' : (driverMode===0 ? '🧑‍✈️ Dengan Supir' : '🔑 Lepas Kunci');
   document.getElementById('estBox').classList.remove('hidden');
-  document.getElementById('estTxt').textContent = `${fmt(total)}`;
-  document.getElementById('estDetail').textContent = `${days} hari × ${fmt(car.price)}/hari = ${fmt(carPrice)}`;
-  
-  return { days, total, carPrice };
+  document.getElementById('estTxt').textContent = fmt(total);
+  document.getElementById('estDetail').textContent = `${tipeLbl} • ${days} hari × ${fmt(harga)}/hari`;
+  return { days, total, harga };
 }
 
 // ─── Submit ───────────────────────────────────
 document.getElementById('bForm').addEventListener('submit', function(e) {
   e.preventDefault();
-
   const s = document.getElementById('fStart').value;
   const en = document.getElementById('fEnd').value;
-  
-  // Hitung hari
   const startDate = new Date(s+'T00:00:00');
   const endDate = new Date(en+'T00:00:00');
   const diffDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
   const days = diffDays + 1;
-  
-  if(days <= 0) {
-    alert('Tanggal pengembalian harus sama atau setelah tanggal penjemputan!');
-    return;
-  }
-
+  if(days <= 0) { alert('Tanggal pengembalian harus sama atau setelah tanggal penjemputan!'); return; }
   const car = CARS[selectedCar];
+  const harga = driverMode === 2 && car.priceAllin ? car.priceAllin : car.price;
   const lokasi = document.getElementById('fLok').value;
   const alamat = document.getElementById('fAlamat').value;
   const lokasiLengkap = lokasi === 'Kota Medan' && alamat ? `${lokasi} - ${alamat}` : lokasi;
+  const tipeDriver = driverMode === 0 ? 'driver' : (driverMode === 1 ? 'selfDrive' : 'allinKota');
 
   const bk = {
     id: DB.newId(),
@@ -372,14 +401,15 @@ document.getElementById('bForm').addEventListener('submit', function(e) {
     car: selectedCar,
     carLabel: car.label,
     withDriver: driverMode === 0,
+    tipeDriver,
     startDate: s,
     endDate: en,
     waktu: document.getElementById('fWkt').value,
     lokasi: lokasiLengkap,
     catatan: document.getElementById('fCt').value || '-',
     days,
-    carPrice: car.price,
-    totalPrice: car.price * days,
+    carPrice: harga,
+    totalPrice: harga * days,
     status: 'pending',
     paymentStatus: 'unpaid',
     driverName: '',
@@ -394,10 +424,10 @@ document.getElementById('bForm').addEventListener('submit', function(e) {
   DB.set(bk);
   lastBookingId = bk.id;
 
-  // Build WA message
-  const link = `${window.location.origin}${window.location.pathname.replace('index.html','')}${TRACKING_URL}?id=${bk.id}`;
+  const link = `${window.location.origin}${TRACKING_URL}?id=${bk.id}`;
+  const tipeLbl = driverMode===2 ? 'Mobil Supir All In Dalam Kota (BBM+Makan Supir)' : (driverMode===0?'Dengan Supir (Gratis)':'Lepas Kunci (Mandiri)');
   const msg =
-`🚗 *BOOKING BARU — Drive Zone*
+`🚗 *BOOKING BARU — Dearma Rental Mobil*
 ━━━━━━━━━━━━━━━━━━━━━
 🔖 *ID Pesanan: ${bk.id}*
 
@@ -409,7 +439,7 @@ document.getElementById('bForm').addEventListener('submit', function(e) {
 
 🚙 *KENDARAAN*
 • Mobil       : ${bk.carLabel}
-• Pengemudi   : ${driverMode===0?'Dengan Supir (Gratis)':'Lepas Kunci (Mandiri)'}
+• Layanan     : ${tipeLbl}
 
 📅 *DETAIL SEWA*
 • Penjemputan : ${fmtD(s)} pukul ${bk.waktu}
@@ -418,9 +448,9 @@ document.getElementById('bForm').addEventListener('submit', function(e) {
 • Lokasi      : ${lokasiLengkap}
 
 💰 *ESTIMASI BIAYA*
-• Sewa        : ${fmt(car.price)} × ${days} hari = ${fmt(car.price * days)}
-• Supir       : Gratis
-• *TOTAL      : ${fmt(car.price * days)}*
+• Tarif/hari  : ${fmt(harga)}
+• Durasi      : ${days} hari
+• *TOTAL      : ${fmt(harga * days)}*
 
 📝 *CATATAN*
 ${bk.catatan}
@@ -430,25 +460,23 @@ ${link}
 ━━━━━━━━━━━━━━━━━━━━━`;
 
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-
-  // Show overlay
   document.getElementById('oId').textContent = bk.id;
   document.getElementById('overlay').classList.add('show');
   e.target.reset();
-  renderCarGrid();
   driverMode = 0;
   document.getElementById('bD0').classList.add('active');
   document.getElementById('bD1').classList.remove('active');
+  document.getElementById('bD2').classList.remove('active');
+  document.getElementById('allinBox').classList.remove('show');
   document.getElementById('estBox').classList.add('hidden');
   document.getElementById('alamatField').classList.add('hidden');
+  renderCarGrid();
 });
 
 function copyLink() {
   if(!lastBookingId) return;
-  const link = `${window.location.origin}${window.location.pathname.replace('index.html','')}${TRACKING_URL}?id=${lastBookingId}`;
-  navigator.clipboard.writeText(link).then(()=>{
-    document.getElementById('oCopy').textContent = '✓ Link Berhasil Disalin!';
-  });
+  const link = `${window.location.origin}${TRACKING_URL}?id=${lastBookingId}`;
+  navigator.clipboard.writeText(link).then(()=>{ document.getElementById('oCopy').textContent = '✓ Link Berhasil Disalin!'; });
 }
 
 function goTrack() {
@@ -461,12 +489,9 @@ function closeOverlay() {
   document.getElementById('oCopy').textContent = '📋 Salin Link Tracking Pesanan';
 }
 
-// Set min date
 const today = new Date().toISOString().split('T')[0];
 document.getElementById('fStart').min = today;
 document.getElementById('fEnd').min = today;
-
-// Init
 renderCarGrid();
 </script>
 </body>
