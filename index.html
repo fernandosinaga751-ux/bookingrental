@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dearma Rental Mobil — Booking Rental Mobil Medan</title>
+  <title>Dearma Jaya Transport — Booking Rental Mobil Medan</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="firebase-config.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -14,30 +15,22 @@
     }
     body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
     .hidden{display:none!important}
-
-    /* Topbar */
     .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;
       display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
     .topbar-logo{height:38px;object-fit:contain}
     .topbar-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
       background:rgba(26,127,196,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
-
-    /* Hero */
     .hero{background:linear-gradient(135deg,#0d0d0d 40%,#071520 100%);
       padding:44px 24px 0;text-align:center;position:relative;overflow:hidden}
     .hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);
       width:600px;height:600px;background:radial-gradient(circle,rgba(26,127,196,.12) 0%,transparent 70%)}
-    .hero-logo{height:70px;object-fit:contain;margin-bottom:12px;filter:drop-shadow(0 4px 24px rgba(26,127,196,.4));animation:fadeUp .7s ease both}
+    .hero-logo{height:70px;object-fit:contain;margin-bottom:12px;filter:drop-shadow(0 4px 24px rgba(26,127,196,.3));animation:fadeUp .7s ease both}
     .hero-sub{color:var(--muted);font-size:13px;letter-spacing:4px;text-transform:uppercase;margin-top:4px;animation:fadeUp .7s .1s ease both}
     .hero-car{font-size:72px;margin-top:20px;filter:drop-shadow(0 0 30px rgba(26,127,196,.3));animation:fadeUp .7s .2s ease both}
-
-    /* Form wrap */
     .form-wrap{max-width:720px;margin:-20px auto 60px;padding:0 16px;animation:fadeUp .8s .3s ease both}
     .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
     .card-accent::before{content:'';display:block;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));
       border-radius:16px 16px 0 0;margin:-28px -28px 22px}
-
-    /* Fields */
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
     .field-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
     input,select,textarea{background:var(--surface);border:1px solid var(--border);border-radius:10px;
@@ -47,13 +40,9 @@
     select option{background:#1e1e1e}
     textarea{resize:vertical;min-height:70px}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-
-    /* Section head */
     .section-head{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--accent);
       display:flex;align-items:center;gap:10px;margin-bottom:16px}
     .section-head::after{content:'';flex:1;height:1px;background:var(--border)}
-
-    /* Car grid */
     .car-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
     @media(min-width:640px){.car-grid{grid-template-columns:repeat(3,1fr)}}
     .car-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;
@@ -64,35 +53,24 @@
     .car-img{width:100%;height:80px;object-fit:contain;margin-bottom:8px;border-radius:6px}
     .car-name{font-size:11px;font-weight:600;letter-spacing:1px;line-height:1.3}
     .car-price{font-size:11px;color:var(--accent);margin-top:4px}
-
-    /* Toggle */
     .toggle-row{display:flex;gap:10px;flex-wrap:wrap}
     .toggle-btn{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:10px;
       color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
       padding:12px 8px;transition:all .2s;line-height:1.5;text-align:center;min-width:120px}
     .toggle-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(26,127,196,.07)}
-
-    /* All In Box */
     .allin-box{background:rgba(26,127,196,.07);border:1px solid rgba(26,127,196,.3);border-radius:12px;
       padding:14px 18px;margin-top:10px;margin-bottom:6px;display:none}
     .allin-box.show{display:block}
     .allin-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px}
-    .allin-include{display:flex;flex-direction:column;gap:5px}
-    .allin-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text)}
-    .allin-item::before{content:'✓';color:var(--green);font-weight:700;font-size:14px}
-
-    /* Summary */
+    .allin-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-bottom:5px}
+    .allin-item::before{content:'✓';color:var(--green);font-weight:700}
     .summary-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px}
-
-    /* Submit btn */
     .btn-xl{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;
       color:#fff;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;
       padding:16px;width:100%;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
     .btn-xl:hover{opacity:.9;transform:translateY(-2px)}
-
+    .btn-xl:disabled{opacity:.5;cursor:not-allowed;transform:none}
     hr.div{border:none;border-top:1px solid var(--border);margin:20px 0}
-
-    /* Success overlay */
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:999;
       align-items:center;justify-content:center;padding:20px}
     .overlay.show{display:flex}
@@ -105,35 +83,29 @@
     .btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
     .btn-outline:hover{border-color:var(--accent);color:var(--accent);opacity:1}
     .w-full{width:100%}
-
+    .loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
     @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-
-    @media(max-width:560px){
-      .grid-2{grid-template-columns:1fr}
-      .card{padding:20px 16px}
-    }
+    @media(max-width:560px){.grid-2{grid-template-columns:1fr}.card{padding:20px 16px}}
   </style>
 </head>
 <body>
 
-<!-- Topbar -->
 <div class="topbar">
-  <img src="dearmajaya-logo.png" alt="Dearma Rental Mobil" class="topbar-logo">
+  <img src="dearmajaya-logo.png" alt="Dearma Jaya Transport" class="topbar-logo">
   <div class="topbar-tag">Form Booking</div>
 </div>
 
-<!-- Hero -->
 <div class="hero">
-  <img src="dearmajaya-logo.png" alt="Dearma Rental Mobil" class="hero-logo">
+  <img src="dearmajaya-logo.png" alt="Dearma Jaya Transport" class="hero-logo">
   <div class="hero-sub">Rental Mobil Medan • Bandara Kualanamu</div>
   <div class="hero-car">🚗</div>
 </div>
 
-<!-- Form -->
 <div class="form-wrap">
   <div class="card card-accent">
     <form id="bForm">
-
       <div class="section-head">👤 Data Penyewa</div>
       <div class="grid-2">
         <div class="field">
@@ -156,7 +128,9 @@
 
       <hr class="div">
       <div class="section-head">🚙 Pilih Kendaraan</div>
-      <div class="car-grid" id="carGrid"></div>
+      <div id="carGrid" class="car-grid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Memuat kendaraan...</div>
+      </div>
 
       <hr class="div">
       <div class="section-head">📅 Detail Sewa</div>
@@ -183,7 +157,6 @@
         </div>
       </div>
 
-      <!-- Alamat Penjemputan -->
       <div class="field hidden" id="alamatField">
         <label class="field-label">Alamat Penjemputan *</label>
         <textarea id="fAlamat" placeholder="Masukkan alamat lengkap penjemputan..."></textarea>
@@ -192,27 +165,18 @@
       <div class="field">
         <label class="field-label">Tipe Layanan</label>
         <div class="toggle-row">
-          <button type="button" id="bD0" class="toggle-btn active" onclick="togDriver(0)">
-            🧑‍✈️ Dengan Supir
-          </button>
-          <button type="button" id="bD1" class="toggle-btn" onclick="togDriver(1)">
-            🔑 Lepas Kunci
-          </button>
-          <button type="button" id="bD2" class="toggle-btn" onclick="togDriver(2)">
-            🏙️ Mobil Supir All In Dalam Kota
-          </button>
+          <button type="button" id="bD0" class="toggle-btn active" onclick="togDriver(0)">🧑‍✈️ Dengan Supir</button>
+          <button type="button" id="bD1" class="toggle-btn" onclick="togDriver(1)">🔑 Lepas Kunci</button>
+          <button type="button" id="bD2" class="toggle-btn" onclick="togDriver(2)">🏙️ Mobil Supir All In Dalam Kota</button>
         </div>
       </div>
 
-      <!-- All In Dalam Kota Info Box -->
       <div class="allin-box" id="allinBox">
         <div class="allin-title">🏙️ Pemakaian Dalam Kota Medan</div>
-        <div class="allin-include">
-          <div class="allin-item">Mobil &amp; Supir</div>
-          <div class="allin-item">BBM (Bahan Bakar Minyak)</div>
-          <div class="allin-item">Makan Supir</div>
-        </div>
-        <div style="margin-top:10px;font-size:12px;color:var(--muted)">Harga sudah termasuk semua biaya di atas. Tidak ada biaya tambahan.</div>
+        <div class="allin-item">Mobil &amp; Supir</div>
+        <div class="allin-item">BBM (Bahan Bakar Minyak)</div>
+        <div class="allin-item">Makan Supir</div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted)">Harga sudah termasuk semua biaya di atas.</div>
       </div>
 
       <div class="field">
@@ -226,12 +190,11 @@
         <div id="estDetail" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
       </div>
 
-      <button type="submit" class="btn-xl">🚀 PESAN SEKARANG → KIRIM KE WHATSAPP</button>
+      <button type="submit" id="submitBtn" class="btn-xl">🚀 PESAN SEKARANG → KIRIM KE WHATSAPP</button>
     </form>
   </div>
 </div>
 
-<!-- Success Overlay -->
 <div class="overlay" id="overlay">
   <div class="success-box">
     <div style="font-size:52px;margin-bottom:12px">✅</div>
@@ -249,11 +212,15 @@
   </div>
 </div>
 
-<script>
-// ─── CONFIG ───────────────────────────────────
-const WA_NUMBER = '6281234567890';
-const TRACKING_URL = '/tracking';
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(app);
+
+const TRACKING_URL = '/tracking';
 const DEFAULT_CARS = {
   avanza: {label:'New Avanza 2024',price:350000,priceAllin:450000,img:'1000537007.png'},
   innova_reborn: {label:'Innova Reborn',price:500000,priceAllin:650000,img:'1000537006.jpg'},
@@ -266,32 +233,36 @@ const DEFAULT_CARS = {
   hiace_premio: {label:'Hiace Premio',price:1100000,priceAllin:1350000,img:'1000537010.jpg'},
 };
 
-// ─── DB ───────────────────────────────────────
-const DB = {
-  all(){ return JSON.parse(localStorage.getItem('dz_bk')||'{}') },
-  set(b){ const a=this.all(); a[b.id]=b; localStorage.setItem('dz_bk',JSON.stringify(a)) },
-  newId(){
-    const n=new Date();
-    return `DZ${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}-${Math.random().toString(36).substr(2,6).toUpperCase()}`;
-  }
+let CARS = {...DEFAULT_CARS};
+let driverMode = 0;
+let lastBookingId = null;
+let selectedCar = 'avanza';
+
+const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+const fmtD = v => { if(!v) return '-'; const d=new Date(v+'T00:00:00');
+  return d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
+const newId = () => {
+  const n=new Date();
+  return `DZ${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}-${Math.random().toString(36).substr(2,6).toUpperCase()}`;
 };
 
-const SettingsDB = {
-  getCars(){
-    const saved = localStorage.getItem('dz_cars');
-    return saved ? JSON.parse(saved) : DEFAULT_CARS;
+// Load cars from Firestore
+async function loadCars() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'cars'));
+    if (snap.exists()) {
+      CARS = snap.data();
+      Object.keys(CARS).forEach(k => {
+        if (!CARS[k].priceAllin) CARS[k].priceAllin = Math.round(CARS[k].price * 1.3);
+      });
+    }
+  } catch(e) {
+    console.warn('Using default cars:', e);
   }
-};
+  renderCarGrid();
+}
 
-let CARS = SettingsDB.getCars();
-
-// Ensure allin prices exist
-Object.keys(CARS).forEach(k => {
-  if(!CARS[k].priceAllin) CARS[k].priceAllin = Math.round(CARS[k].price * 1.3);
-});
-
-// ─── Render Car Grid ──────────────────────────
-function renderCarGrid() {
+window.renderCarGrid = function() {
   const grid = document.getElementById('carGrid');
   const showAllin = driverMode === 2;
   grid.innerHTML = Object.entries(CARS).map(([key, car], idx) => `
@@ -304,95 +275,68 @@ function renderCarGrid() {
   `).join('');
 }
 
-// ─── Helpers ─────────────────────────────────
-const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
-const fmtD = v => {
-  if(!v) return '-';
-  const d = new Date(v+'T00:00:00');
-  return d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-};
-
-let driverMode = 0;
-let lastBookingId = null;
-let selectedCar = 'avanza';
-
-// ─── Form Logic ───────────────────────────────
-function selCar(el, carKey) {
+window.selCar = function(el, carKey) {
   document.querySelectorAll('.car-card').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
   selectedCar = carKey;
   calcEst();
 }
 
-function togDriver(m) {
+window.togDriver = function(m) {
   driverMode = m;
-  document.getElementById('bD0').classList.toggle('active', m===0);
-  document.getElementById('bD1').classList.toggle('active', m===1);
-  document.getElementById('bD2').classList.toggle('active', m===2);
-  // Show/hide all-in box
+  [0,1,2].forEach(i => document.getElementById('bD'+i).classList.toggle('active', m===i));
   document.getElementById('allinBox').classList.toggle('show', m===2);
-  // Re-render car grid to update price display
   renderCarGrid();
-  // Re-select current car
   const cards = document.querySelectorAll('.car-card');
-  const carKeys = Object.keys(CARS);
-  const idx = carKeys.indexOf(selectedCar);
-  if(idx >= 0 && cards[idx]) cards[idx].classList.add('selected');
+  const idx = Object.keys(CARS).indexOf(selectedCar);
+  if(idx>=0 && cards[idx]) cards[idx].classList.add('selected');
   calcEst();
 }
 
-function toggleAlamat() {
+window.toggleAlamat = function() {
   const lokasi = document.getElementById('fLok').value;
-  const alamatField = document.getElementById('alamatField');
-  const fAlamat = document.getElementById('fAlamat');
-  if(lokasi === 'Kota Medan') {
-    alamatField.classList.remove('hidden');
-    fAlamat.required = true;
-  } else {
-    alamatField.classList.add('hidden');
-    fAlamat.required = false;
-    fAlamat.value = '';
-  }
+  const f = document.getElementById('alamatField');
+  const fa = document.getElementById('fAlamat');
+  f.classList.toggle('hidden', lokasi !== 'Kota Medan');
+  fa.required = lokasi === 'Kota Medan';
+  if(lokasi !== 'Kota Medan') fa.value = '';
 }
 
-function calcEst() {
+window.calcEst = function() {
   const s = document.getElementById('fStart').value;
   const e = document.getElementById('fEnd').value;
   if(!s||!e) return;
-  const startDate = new Date(s+'T00:00:00');
-  const endDate = new Date(e+'T00:00:00');
-  const diffDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-  const days = diffDays + 1;
+  const days = Math.ceil((new Date(e+'T00:00:00') - new Date(s+'T00:00:00')) / 86400000) + 1;
   if(days <= 0) return;
   const car = CARS[selectedCar];
   const harga = driverMode === 2 && car.priceAllin ? car.priceAllin : car.price;
   const total = harga * days;
-  const tipeLbl = driverMode === 2 ? '🏙️ All In Dalam Kota' : (driverMode===0 ? '🧑‍✈️ Dengan Supir' : '🔑 Lepas Kunci');
+  const tipeLbl = driverMode===2 ? '🏙️ All In Dalam Kota' : (driverMode===0?'🧑‍✈️ Dengan Supir':'🔑 Lepas Kunci');
   document.getElementById('estBox').classList.remove('hidden');
   document.getElementById('estTxt').textContent = fmt(total);
   document.getElementById('estDetail').textContent = `${tipeLbl} • ${days} hari × ${fmt(harga)}/hari`;
   return { days, total, harga };
 }
 
-// ─── Submit ───────────────────────────────────
-document.getElementById('bForm').addEventListener('submit', function(e) {
+document.getElementById('bForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Menyimpan...';
+
   const s = document.getElementById('fStart').value;
   const en = document.getElementById('fEnd').value;
-  const startDate = new Date(s+'T00:00:00');
-  const endDate = new Date(en+'T00:00:00');
-  const diffDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-  const days = diffDays + 1;
-  if(days <= 0) { alert('Tanggal pengembalian harus sama atau setelah tanggal penjemputan!'); return; }
+  const days = Math.ceil((new Date(en+'T00:00:00') - new Date(s+'T00:00:00')) / 86400000) + 1;
+  if(days <= 0) { alert('Tanggal pengembalian harus setelah tanggal penjemputan!'); btn.disabled=false; btn.innerHTML='🚀 PESAN SEKARANG → KIRIM KE WHATSAPP'; return; }
   const car = CARS[selectedCar];
   const harga = driverMode === 2 && car.priceAllin ? car.priceAllin : car.price;
   const lokasi = document.getElementById('fLok').value;
   const alamat = document.getElementById('fAlamat').value;
   const lokasiLengkap = lokasi === 'Kota Medan' && alamat ? `${lokasi} - ${alamat}` : lokasi;
-  const tipeDriver = driverMode === 0 ? 'driver' : (driverMode === 1 ? 'selfDrive' : 'allinKota');
+  const tipeDriver = driverMode===0 ? 'driver' : (driverMode===1 ? 'selfDrive' : 'allinKota');
 
   const bk = {
-    id: DB.newId(),
+    id: newId(),
     createdAt: new Date().toISOString(),
     nama: document.getElementById('fNama').value,
     wa: document.getElementById('fWa').value,
@@ -421,13 +365,22 @@ document.getElementById('bForm').addEventListener('submit', function(e) {
     confirmedAt: null,
     completedAt: null,
   };
-  DB.set(bk);
-  lastBookingId = bk.id;
 
+  try {
+    await setDoc(doc(db, 'bookings', bk.id), bk);
+  } catch(err) {
+    console.error('Firebase error:', err);
+    // Fallback to localStorage
+    const all = JSON.parse(localStorage.getItem('dz_bk')||'{}');
+    all[bk.id] = bk;
+    localStorage.setItem('dz_bk', JSON.stringify(all));
+  }
+
+  lastBookingId = bk.id;
   const link = `${window.location.origin}${TRACKING_URL}?id=${bk.id}`;
-  const tipeLbl = driverMode===2 ? 'Mobil Supir All In Dalam Kota (BBM+Makan Supir)' : (driverMode===0?'Dengan Supir (Gratis)':'Lepas Kunci (Mandiri)');
+  const tipeLbl = driverMode===2?'Mobil Supir All In (BBM+Makan Supir)':(driverMode===0?'Dengan Supir':'Lepas Kunci');
   const msg =
-`🚗 *BOOKING BARU — Dearma Rental Mobil*
+`🚗 *BOOKING BARU — Dearma Jaya Transport*
 ━━━━━━━━━━━━━━━━━━━━━
 🔖 *ID Pesanan: ${bk.id}*
 
@@ -448,15 +401,11 @@ document.getElementById('bForm').addEventListener('submit', function(e) {
 • Lokasi      : ${lokasiLengkap}
 
 💰 *ESTIMASI BIAYA*
-• Tarif/hari  : ${fmt(harga)}
-• Durasi      : ${days} hari
-• *TOTAL      : ${fmt(harga * days)}*
+• ${fmt(harga)} × ${days} hari = *${fmt(harga * days)}*
 
-📝 *CATATAN*
-${bk.catatan}
+📝 Catatan: ${bk.catatan}
 
-🔗 *Link Tracking Pesanan:*
-${link}
+🔗 Link Tracking: ${link}
 ━━━━━━━━━━━━━━━━━━━━━`;
 
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
@@ -464,35 +413,31 @@ ${link}
   document.getElementById('overlay').classList.add('show');
   e.target.reset();
   driverMode = 0;
-  document.getElementById('bD0').classList.add('active');
-  document.getElementById('bD1').classList.remove('active');
-  document.getElementById('bD2').classList.remove('active');
+  [0,1,2].forEach(i => document.getElementById('bD'+i).classList.toggle('active', i===0));
   document.getElementById('allinBox').classList.remove('show');
   document.getElementById('estBox').classList.add('hidden');
   document.getElementById('alamatField').classList.add('hidden');
+  btn.disabled = false;
+  btn.innerHTML = '🚀 PESAN SEKARANG → KIRIM KE WHATSAPP';
   renderCarGrid();
 });
 
-function copyLink() {
+window.copyLink = function() {
   if(!lastBookingId) return;
-  const link = `${window.location.origin}${TRACKING_URL}?id=${lastBookingId}`;
-  navigator.clipboard.writeText(link).then(()=>{ document.getElementById('oCopy').textContent = '✓ Link Berhasil Disalin!'; });
+  navigator.clipboard.writeText(`${window.location.origin}${TRACKING_URL}?id=${lastBookingId}`)
+    .then(()=>{ document.getElementById('oCopy').textContent = '✓ Link Berhasil Disalin!'; });
 }
-
-function goTrack() {
-  if(!lastBookingId) return;
-  window.location.href = `${TRACKING_URL}?id=${lastBookingId}`;
-}
-
-function closeOverlay() {
+window.goTrack = function() { if(lastBookingId) window.location.href = `${TRACKING_URL}?id=${lastBookingId}`; }
+window.closeOverlay = function() {
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('oCopy').textContent = '📋 Salin Link Tracking Pesanan';
 }
 
+// Init
 const today = new Date().toISOString().split('T')[0];
 document.getElementById('fStart').min = today;
 document.getElementById('fEnd').min = today;
-renderCarGrid();
+loadCars();
 </script>
 </body>
 </html>
