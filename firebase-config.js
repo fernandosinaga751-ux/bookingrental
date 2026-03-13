@@ -15,7 +15,7 @@ const firebaseConfig = {
 };
 
 // Nomor WhatsApp admin (format internasional tanpa +)
-const WA_NUMBER = "6281234567890";
+const WA_NUMBER = "62818520057";
 
 // Password admin dashboard
 const ADMIN_PASS = "admin123";
