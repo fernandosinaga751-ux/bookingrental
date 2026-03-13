@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dearma Jaya Transport — Status Pesanan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="/config.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;--accent:#1a7fc4;--accent2:#0d5a94;--text:#f5f5f5;--muted:#888;--border:#2e2e2e;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316}
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar img{height:36px;object-fit:contain}
+    .tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);background:rgba(26,127,196,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+    .wrap{max-width:720px;margin:0 auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px}
+    /* Stepper */
+    .stepper{display:flex;align-items:flex-start;margin:16px 0 8px}
+    .step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+    .step:not(:last-child)::after{content:'';position:absolute;top:16px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+    .step:not(:last-child).done::after{background:var(--accent)}
+    .step-c{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:13px;z-index:1;position:relative;transition:all .3s}
+    .done .step-c{border-color:var(--accent);background:rgba(26,127,196,.15);color:var(--accent)}
+    .cur  .step-c{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(26,127,196,.2)}
+    .step-lbl{font-size:10px;font-weight:600;text-align:center;margin-top:6px;color:var(--muted);letter-spacing:.5px;line-height:1.3}
+    .done .step-lbl,.cur .step-lbl{color:var(--text)}
+    /* Misc */
+    .sh{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:14px}
+    .sh:first-child{margin-top:0}
+    .sh::after{content:'';flex:1;height:1px;background:var(--border)}
+    .ir{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+    .ir:last-child{border-bottom:none}
+    .il{color:var(--muted);font-size:12px;min-width:115px;flex-shrink:0;padding-top:1px}
+    .iv{font-size:13px;font-weight:500;flex:1;word-break:break-word}
+    .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;letter-spacing:.5px;padding:4px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap}
+    .bp{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+    .bc{background:rgba(26,127,196,.15);color:var(--blue);border:1px solid rgba(26,127,196,.3)}
+    .ba{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .bx{background:rgba(136,136,136,.15);color:var(--muted);border:1px solid rgba(136,136,136,.3)}
+    .bpd{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .bup{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+    .alert{border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5}
+    .ai{background:rgba(26,127,196,.1);border:1px solid rgba(26,127,196,.3);color:var(--blue)}
+    .as{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+    .aw{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:var(--orange)}
+    .ad{background:rgba(136,136,136,.08);border:1px solid rgba(136,136,136,.2);color:var(--muted)}
+    .plate{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--accent)}
+    .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+    .photo-item{aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+    .photo-item img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+    .btn{border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:9px 18px;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+    .btn:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-ol{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .btn-ol:hover{border-color:var(--accent);color:var(--accent);opacity:1}
+    .btn-dl{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .fu{animation:fadeUp .5s ease both}
+    .pulse{animation:pulse 2s infinite}
+    @media(max-width:540px){.il{min-width:95px}.topbar{padding:10px 14px}}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="/dearmajaya-logo.png" alt="Dearma Jaya Transport">
+  <div class="tag">Status Pesanan</div>
+</div>
+<div id="hero" style="background:linear-gradient(135deg,#0d0d0d,#071520);padding:28px 20px;text-align:center;border-bottom:1px solid var(--border)">
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Tracking Pesanan</div>
+  <div id="hStatus"></div>
+  <div id="hId" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(15px,5vw,24px);letter-spacing:4px;color:var(--muted);margin-top:4px"></div>
+</div>
+
+<div class="wrap" style="padding-top:20px;padding-bottom:60px" id="main">
+  <div style="text-align:center;padding:60px 20px">
+    <div style="font-size:40px">⏳</div>
+    <div style="color:var(--muted);margin-top:10px">Memuat data pesanan…</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }                  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getFirestore(app);
+
+const fmt  = n => 'Rp '+Number(n).toLocaleString('id-ID');
+const fmtD = v => { if(!v) return '-'; const d=new Date(v+'T00:00:00'); return d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
+const fmtDT= v => { if(!v) return '-'; const d=new Date(v); return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}); };
+
+function computeStatus(b) {
+  if(b.status==='completed') return 'completed';
+  const today=new Date().toISOString().split('T')[0];
+  if(b.status==='active')    return today>b.endDate?'completed':'active';
+  if(b.status==='confirmed') return today>=b.startDate?'active':'confirmed';
+  return 'pending';
+}
+const sBadge = s => { const M={pending:{c:'bp',i:'⏳',t:'Menunggu Konfirmasi'},confirmed:{c:'bc',i:'✅',t:'Dikonfirmasi'},active:{c:'ba',i:'🚗',t:'Sedang Berjalan'},completed:{c:'bx',i:'🏁',t:'Selesai'}}; const v=M[s]||M.pending; return `<span class="badge ${v.c}">${v.i} ${v.t}</span>`; };
+const pBadge = s => s==='paid'?'<span class="badge bpd">✓ Lunas</span>':'<span class="badge bup">✗ Belum Bayar</span>';
+const drvLabel= b => b.tipeDriver==='allinKota'?'🏙️ Mobil Supir All In Dalam Kota':b.withDriver?'🧑‍✈️ Dengan Supir':'🔑 Lepas Kunci';
+
+const CAR_IMG={avanza:'1000537007.png',innova_reborn:'1000537006.jpg',innova_zenix:'1000537006.jpg',fortuner:'1000537008.jpg',pajero:'1000537014.jpg',alphard_2023:'1000537012.jpg',alphard_2025:'1000537013.jpg',hiace_commuter:'1000537011.jpg',hiace_premio:'1000537010.jpg'};
+
+const id = new URLSearchParams(location.search).get('id');
+
+async function load() {
+  const main = document.getElementById('main');
+  if(!id) { showErr(main,'ID Pesanan tidak ditemukan di URL.'); return; }
+
+  let b;
+  try {
+    const snap = await getDoc(doc(db,'bookings',id));
+    b = snap.exists() ? snap.data() : null;
+  } catch(e) {
+    b = JSON.parse(localStorage.getItem('dz_bk')||'{}')[id];
+  }
+  if(!b) { showErr(main,`Pesanan <strong>${id}</strong> tidak ditemukan.`); return; }
+
+  const rs = computeStatus(b);
+  if(rs!==b.status) {
+    b.status=rs;
+    try { await updateDoc(doc(db,'bookings',id),{status:rs}); } catch(e){}
+  }
+
+  document.getElementById('hStatus').innerHTML = sBadge(rs);
+  document.getElementById('hId').textContent   = id;
+
+  const STEPS=[{icon:'📋',label:'Pesanan\nDiterima'},{icon:'✅',label:'Dikonfirmasi'},{icon:'🚗',label:'Sedang\nBerjalan'},{icon:'🏁',label:'Selesai'}];
+  const ORD={pending:0,confirmed:1,active:2,completed:3};
+  const ci=ORD[rs]||0;
+  const stepHtml=STEPS.map((s,i)=>{const done=i<ci,cur=i===ci; return `<div class="step ${done?'done':''} ${cur?'cur':''}"><div class="step-c">${done?'✓':s.icon}</div><div class="step-lbl">${s.label.replace('\n','<br>')}</div></div>`;}).join('');
+
+  const banners={pending:`<div class="alert aw">⏳ <strong>Menunggu konfirmasi.</strong> Admin akan menghubungi via WhatsApp segera.</div>`,confirmed:`<div class="alert ai">✅ <strong>Dikonfirmasi!</strong> Bersiaplah untuk tanggal sewa.</div>`,active:`<div class="alert as pulse">🚗 <strong>Kendaraan sedang berjalan.</strong> Selamat menikmati perjalanan!</div>`,completed:`<div class="alert ad">🏁 <strong>Masa sewa selesai.</strong> Terima kasih telah menggunakan Dearma Jaya Transport!</div>`};
+
+  const showDrv=['confirmed','active','completed'].includes(rs)&&(b.vehiclePlate||b.driverName);
+  const allinInfo=b.tipeDriver==='allinKota'?`<div style="margin-top:8px;background:rgba(26,127,196,.07);border:1px solid rgba(26,127,196,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted)">✓ Include: Mobil + Supir + BBM + Makan Supir</div>`:'';
+
+  main.innerHTML=`
+  <div class="card fu">
+    <div class="stepper">${stepHtml}</div>
+    ${banners[rs]||''}
+    <div style="font-size:11px;color:var(--muted);text-align:right;margin-top:6px">Diperiksa: ${fmtDT(new Date().toISOString())}</div>
+  </div>
+
+  <div class="card fu" style="animation-delay:.1s">
+    <div class="sh">📋 Detail Pesanan</div>
+    <div class="ir"><span class="il">ID Pesanan</span><span class="iv" style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:var(--accent);font-size:14px">${b.id}</span></div>
+    <div class="ir"><span class="il">Nama Penyewa</span><span class="iv">${b.nama}</span></div>
+    <div class="ir"><span class="il">No. WhatsApp</span><span class="iv">${b.wa}</span></div>
+    <div class="ir"><span class="il">Tanggal Mulai</span><span class="iv">${fmtD(b.startDate)} pukul ${b.waktu||'-'}</span></div>
+    <div class="ir"><span class="il">Tanggal Selesai</span><span class="iv">${fmtD(b.endDate)}</span></div>
+    <div class="ir"><span class="il">Durasi</span><span class="iv">${b.days} hari</span></div>
+    <div class="ir"><span class="il">Lokasi</span><span class="iv">${b.lokasi||'-'}</span></div>
+    ${b.catatan&&b.catatan!=='-'?`<div class="ir"><span class="il">Catatan</span><span class="iv">${b.catatan}</span></div>`:''}
+  </div>
+
+  <div class="card fu" style="animation-delay:.2s">
+    <div class="sh">🚙 Kendaraan</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <img src="/${CAR_IMG[b.car]||'1000537007.png'}" style="width:80px;height:50px;object-fit:contain;border-radius:6px">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent)">${b.carLabel||'-'}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">${drvLabel(b)}</div>
+      </div>
+    </div>
+    ${allinInfo}
+    ${showDrv?`<div style="margin-top:12px;background:rgba(26,127,196,.07);border:1px solid rgba(26,127,196,.2);border-radius:8px;padding:12px">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">🧑‍✈️ Info Driver &amp; Kendaraan</div>
+      ${b.vehiclePlate?`<div class="ir" style="border:none;padding:4px 0"><span class="il">No. Polisi</span><span class="iv"><span class="plate">${b.vehiclePlate}</span></span></div>`:''}
+      ${b.driverName?`<div class="ir" style="border:none;padding:4px 0"><span class="il">Nama Driver</span><span class="iv">${b.driverName}</span></div>`:''}
+      ${b.driverPhone?`<div class="ir" style="border:none;padding:4px 0"><span class="il">Kontak Driver</span><span class="iv"><a href="https://wa.me/${b.driverPhone.replace(/^0/,'62')}" target="_blank" style="color:var(--green);font-weight:600">📱 ${b.driverPhone}</a></span></div>`:''}
+    </div>`:''}
+  </div>
+
+  <div class="card fu" style="animation-delay:.3s">
+    <div class="sh">💰 Pembayaran</div>
+    <div class="ir"><span class="il">Status Bayar</span><span class="iv">${pBadge(b.paymentStatus)}</span></div>
+    <div class="ir"><span class="il">Total Biaya</span><span class="iv" style="font-weight:700;font-size:15px;color:var(--accent)">${fmt(b.totalPrice)}</span></div>
+    ${b.paymentStatus==='paid'&&b.paymentMethod?`<div class="ir"><span class="il">Metode</span><span class="iv">${b.paymentMethod}</span></div>`:''}
+    ${b.paymentStatus==='unpaid'?`<div style="margin-top:10px"><div class="alert aw">💳 Silakan lakukan pembayaran sesuai instruksi admin via WhatsApp.</div></div>`:''}
+  </div>
+
+  ${b.invoiceUrl?`
+  <div class="card fu" style="animation-delay:.4s">
+    <div class="sh">🧾 Invoice</div>
+    <div style="text-align:center;padding:8px 0">
+      <a href="${b.invoiceUrl}" target="_blank" download="Invoice-${b.id}" class="btn btn-dl">⬇️ Download Invoice</a>
+    </div>
+  </div>`:''}
+
+  ${b.carPhotos?.length?`
+  <div class="card fu" style="animation-delay:.5s">
+    <div class="sh">📸 Foto Kendaraan</div>
+    <div class="photo-grid">${b.carPhotos.map(u=>`<div class="photo-item"><img src="${u}" onclick="window.open('${u}','_blank')"></div>`).join('')}</div>
+  </div>`:''}
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding-bottom:20px">
+    <button class="btn btn-ol" onclick="location.reload()">🔄 Refresh</button>
+    <button class="btn btn-ol" onclick="navigator.clipboard.writeText(location.href).then(()=>alert('✅ Link disalin!'))">📋 Salin Link</button>
+    <a href="/" style="text-decoration:none"><button class="btn btn-ol">➕ Buat Pesanan Baru</button></a>
+  </div>`;
+}
+
+function showErr(main,msg) {
+  document.getElementById('hStatus').innerHTML='<span class="badge bup">❌ Tidak Ditemukan</span>';
+  main.innerHTML=`<div class="card" style="text-align:center;padding:40px 24px">
+    <div style="font-size:48px;margin-bottom:14px">🔍</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--accent);margin-bottom:8px">Pesanan Tidak Ditemukan</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:20px">${msg}</p>
+    <a href="/" style="text-decoration:none"><button class="btn btn-ol">← Kembali ke Form Booking</button></a>
+  </div>`;
+}
+
+load();
+</script>
+</body>
+</html>

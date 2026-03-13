@@ -1,7 +1,9 @@
 {
   "routes": [
-    { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/tracking(.*)", "dest": "/tracking.html" },
-    { "src": "/", "dest": "/index.html" }
+    { "src": "/api/(.*)",            "dest": "/api/$1" },
+    { "src": "/admin",               "dest": "/public/admin.html" },
+    { "src": "/tracking(.*)",        "dest": "/public/tracking.html" },
+    { "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp))", "dest": "/public/$1" },
+    { "src": "/",                    "dest": "/public/index.html" }
   ]
 }
