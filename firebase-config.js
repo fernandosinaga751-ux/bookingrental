@@ -5,13 +5,13 @@
 // Lihat README_SETUP.md untuk panduan lengkap
 // ═══════════════════════════════════════════════════════════════
 
-const FIREBASE_CONFIG = {
-  apiKey: "GANTI_API_KEY",
-  authDomain: "GANTI_PROJECT_ID.firebaseapp.com",
-  projectId: "GANTI_PROJECT_ID",
-  storageBucket: "GANTI_PROJECT_ID.appspot.com",
-  messagingSenderId: "GANTI_SENDER_ID",
-  appId: "GANTI_APP_ID"
+const firebaseConfig = {
+  apiKey: "AIzaSyB3bmAicnWtke5qncqtqBqdVdGmpnkktDU",
+  authDomain: "drive-zone-rental.firebaseapp.com",
+  projectId: "drive-zone-rental",
+  storageBucket: "drive-zone-rental.firebasestorage.app",
+  messagingSenderId: "242193174482",
+  appId: "1:242193174482:web:4602277ab627a75b0e820b"
 };
 
 // Nomor WhatsApp admin (format internasional tanpa +)
