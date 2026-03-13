@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dearma Jaya Transport — Booking Rental Mobil Medan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="firebase-config.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;
+      --accent:#1a7fc4;--accent2:#0d5a94;--text:#f5f5f5;--muted:#888;--border:#2e2e2e;
+      --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+    .hidden{display:none!important}
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;
+      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .topbar-logo{height:38px;object-fit:contain}
+    .topbar-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+      background:rgba(26,127,196,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+    .hero{background:linear-gradient(135deg,#0d0d0d 40%,#071520 100%);
+      padding:44px 24px 0;text-align:center;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);
+      width:600px;height:600px;background:radial-gradient(circle,rgba(26,127,196,.12) 0%,transparent 70%)}
+    .hero-logo{height:70px;object-fit:contain;margin-bottom:12px;filter:drop-shadow(0 4px 24px rgba(26,127,196,.3));animation:fadeUp .7s ease both}
+    .hero-sub{color:var(--muted);font-size:13px;letter-spacing:4px;text-transform:uppercase;margin-top:4px;animation:fadeUp .7s .1s ease both}
+    .hero-car{font-size:72px;margin-top:20px;filter:drop-shadow(0 0 30px rgba(26,127,196,.3));animation:fadeUp .7s .2s ease both}
+    .form-wrap{max-width:720px;margin:-20px auto 60px;padding:0 16px;animation:fadeUp .8s .3s ease both}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+    .card-accent::before{content:'';display:block;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+      border-radius:16px 16px 0 0;margin:-28px -28px 22px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .field-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+    input,select,textarea{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:11px 14px;
+      transition:border-color .2s,box-shadow .2s;width:100%;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,196,.1)}
+    select option{background:#1e1e1e}
+    textarea{resize:vertical;min-height:70px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .section-head{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;color:var(--accent);
+      display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .section-head::after{content:'';flex:1;height:1px;background:var(--border)}
+    .car-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+    @media(min-width:640px){.car-grid{grid-template-columns:repeat(3,1fr)}}
+    .car-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;
+      padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;overflow:hidden}
+    .car-card:hover{border-color:var(--muted);transform:translateY(-2px)}
+    .car-card.selected{border-color:var(--accent);background:rgba(26,127,196,.05)}
+    .car-card input[type=radio]{display:none}
+    .car-img{width:100%;height:80px;object-fit:contain;margin-bottom:8px;border-radius:6px}
+    .car-name{font-size:11px;font-weight:600;letter-spacing:1px;line-height:1.3}
+    .car-price{font-size:11px;color:var(--accent);margin-top:4px}
+    .toggle-row{display:flex;gap:10px;flex-wrap:wrap}
+    .toggle-btn{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:10px;
+      color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+      padding:12px 8px;transition:all .2s;line-height:1.5;text-align:center;min-width:120px}
+    .toggle-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(26,127,196,.07)}
+    .allin-box{background:rgba(26,127,196,.07);border:1px solid rgba(26,127,196,.3);border-radius:12px;
+      padding:14px 18px;margin-top:10px;margin-bottom:6px;display:none}
+    .allin-box.show{display:block}
+    .allin-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px}
+    .allin-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-bottom:5px}
+    .allin-item::before{content:'✓';color:var(--green);font-weight:700}
+    .summary-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px}
+    .btn-xl{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;
+      color:#fff;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;
+      padding:16px;width:100%;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-xl:hover{opacity:.9;transform:translateY(-2px)}
+    .btn-xl:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    hr.div{border:none;border-top:1px solid var(--border);margin:20px 0}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:999;
+      align-items:center;justify-content:center;padding:20px}
+    .overlay.show{display:flex}
+    .success-box{background:var(--card);border:1px solid var(--accent);border-radius:20px;
+      padding:36px 28px;text-align:center;max-width:420px;width:100%}
+    .btn{border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;
+      font-size:13px;font-weight:600;padding:10px 20px;transition:all .2s}
+    .btn:hover{opacity:.88;transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent);opacity:1}
+    .w-full{width:100%}
+    .loading-spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:560px){.grid-2{grid-template-columns:1fr}.card{padding:20px 16px}}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="dearmajaya-logo.png" alt="Dearma Jaya Transport" class="topbar-logo">
+  <div class="topbar-tag">Form Booking</div>
+</div>
+
+<div class="hero">
+  <img src="dearmajaya-logo.png" alt="Dearma Jaya Transport" class="hero-logo">
+  <div class="hero-sub">Rental Mobil Medan • Bandara Kualanamu</div>
+  <div class="hero-car">🚗</div>
+</div>
+
+<div class="form-wrap">
+  <div class="card card-accent">
+    <form id="bForm">
+      <div class="section-head">👤 Data Penyewa</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">Nama Lengkap *</label>
+          <input id="fNama" type="text" placeholder="Budi Santoso" required>
+        </div>
+        <div class="field">
+          <label class="field-label">No. WhatsApp *</label>
+          <input id="fWa" type="tel" placeholder="08xxxxxxxxxx" required>
+        </div>
+        <div class="field">
+          <label class="field-label">Email</label>
+          <input id="fEmail" type="email" placeholder="email@contoh.com">
+        </div>
+        <div class="field">
+          <label class="field-label">No. KTP / SIM</label>
+          <input id="fKtp" type="text" placeholder="3271xxxxxxxxxxxxxxx">
+        </div>
+      </div>
+
+      <hr class="div">
+      <div class="section-head">🚙 Pilih Kendaraan</div>
+      <div id="carGrid" class="car-grid">
+        <div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:20px">Memuat kendaraan...</div>
+      </div>
+
+      <hr class="div">
+      <div class="section-head">📅 Detail Sewa</div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">Tanggal Penjemputan *</label>
+          <input id="fStart" type="date" required onchange="calcEst()">
+        </div>
+        <div class="field">
+          <label class="field-label">Tanggal Pengembalian *</label>
+          <input id="fEnd" type="date" required onchange="calcEst()">
+        </div>
+        <div class="field">
+          <label class="field-label">Jam Penjemputan</label>
+          <input id="fWkt" type="time" value="08:00">
+        </div>
+        <div class="field">
+          <label class="field-label">Lokasi Penjemputan *</label>
+          <select id="fLok" required onchange="toggleAlamat()">
+            <option value="">-- Pilih Lokasi --</option>
+            <option value="Bandara Kualanamu">Bandara Kualanamu International Airport</option>
+            <option value="Kota Medan">Kota Medan</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field hidden" id="alamatField">
+        <label class="field-label">Alamat Penjemputan *</label>
+        <textarea id="fAlamat" placeholder="Masukkan alamat lengkap penjemputan..."></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Tipe Layanan</label>
+        <div class="toggle-row">
+          <button type="button" id="bD0" class="toggle-btn active" onclick="togDriver(0)">🧑‍✈️ Dengan Supir</button>
+          <button type="button" id="bD1" class="toggle-btn" onclick="togDriver(1)">🔑 Lepas Kunci</button>
+          <button type="button" id="bD2" class="toggle-btn" onclick="togDriver(2)">🏙️ Mobil Supir All In Dalam Kota</button>
+        </div>
+      </div>
+
+      <div class="allin-box" id="allinBox">
+        <div class="allin-title">🏙️ Pemakaian Dalam Kota Medan</div>
+        <div class="allin-item">Mobil &amp; Supir</div>
+        <div class="allin-item">BBM (Bahan Bakar Minyak)</div>
+        <div class="allin-item">Makan Supir</div>
+        <div style="margin-top:10px;font-size:12px;color:var(--muted)">Harga sudah termasuk semua biaya di atas.</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Catatan Tambahan</label>
+        <textarea id="fCt" placeholder="Misalnya: perlu baby seat, perjalanan luar kota, dsb..."></textarea>
+      </div>
+
+      <div id="estBox" class="summary-box hidden">
+        <div style="font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Estimasi Biaya</div>
+        <div id="estTxt" style="font-size:15px;font-weight:700;color:var(--accent)"></div>
+        <div id="estDetail" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn-xl">🚀 PESAN SEKARANG → KIRIM KE WHATSAPP</button>
+    </form>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="success-box">
+    <div style="font-size:52px;margin-bottom:12px">✅</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--accent);margin-bottom:6px">BOOKING TERKIRIM!</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:18px">
+      Pesanan berhasil dibuat &amp; dikirim ke WhatsApp kami.<br>Gunakan ID di bawah untuk melacak status pesanan Anda.
+    </p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px">ID PESANAN</div>
+      <div id="oId" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--accent)"></div>
+    </div>
+    <button id="oCopy" class="btn btn-outline w-full" style="margin-bottom:8px" onclick="copyLink()">📋 Salin Link Tracking Pesanan</button>
+    <button class="btn btn-primary w-full" onclick="goTrack()">🔍 Lihat Status Pesanan →</button>
+    <button class="btn btn-outline w-full" style="margin-top:8px;color:var(--muted);font-size:12px" onclick="closeOverlay()">Buat Pesanan Baru</button>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(app);
+
+const TRACKING_URL = '/tracking';
+const DEFAULT_CARS = {
+  avanza: {label:'New Avanza 2024',price:350000,priceAllin:450000,img:'1000537007.png'},
+  innova_reborn: {label:'Innova Reborn',price:500000,priceAllin:650000,img:'1000537006.jpg'},
+  innova_zenix: {label:'Innova Zenix',price:550000,priceAllin:700000,img:'1000537006.jpg'},
+  fortuner: {label:'Fortuner 2024',price:750000,priceAllin:950000,img:'1000537008.jpg'},
+  pajero: {label:'Pajero 2024',price:800000,priceAllin:1000000,img:'1000537014.jpg'},
+  alphard_2023: {label:'Alphard 2023',price:1500000,priceAllin:1800000,img:'1000537012.jpg'},
+  alphard_2025: {label:'New Alphard 2025',price:1800000,priceAllin:2100000,img:'1000537013.jpg'},
+  hiace_commuter: {label:'Hiace Commuter',price:900000,priceAllin:1100000,img:'1000537011.jpg'},
+  hiace_premio: {label:'Hiace Premio',price:1100000,priceAllin:1350000,img:'1000537010.jpg'},
+};
+
+let CARS = {...DEFAULT_CARS};
+let driverMode = 0;
+let lastBookingId = null;
+let selectedCar = 'avanza';
+
+const fmt = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+const fmtD = v => { if(!v) return '-'; const d=new Date(v+'T00:00:00');
+  return d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
+const newId = () => {
+  const n=new Date();
+  return `DZ${n.getFullYear()}${String(n.getMonth()+1).padStart(2,'0')}-${Math.random().toString(36).substr(2,6).toUpperCase()}`;
+};
+
+// Load cars from Firestore
+async function loadCars() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'cars'));
+    if (snap.exists()) {
+      CARS = snap.data();
+      Object.keys(CARS).forEach(k => {
+        if (!CARS[k].priceAllin) CARS[k].priceAllin = Math.round(CARS[k].price * 1.3);
+      });
+    }
+  } catch(e) {
+    console.warn('Using default cars:', e);
+  }
+  renderCarGrid();
+}
+
+window.renderCarGrid = function() {
+  const grid = document.getElementById('carGrid');
+  const showAllin = driverMode === 2;
+  grid.innerHTML = Object.entries(CARS).map(([key, car], idx) => `
+    <label class="car-card ${idx===0?'selected':''}" onclick="selCar(this, '${key}')">
+      <input type="radio" name="car" value="${key}" ${idx===0?'checked':''}>
+      <img src="${car.img}" alt="${car.label}" class="car-img">
+      <div class="car-name">${car.label}</div>
+      <div class="car-price">${fmt(showAllin && car.priceAllin ? car.priceAllin : car.price)}/hari</div>
+    </label>
+  `).join('');
+}
+
+window.selCar = function(el, carKey) {
+  document.querySelectorAll('.car-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCar = carKey;
+  calcEst();
+}
+
+window.togDriver = function(m) {
+  driverMode = m;
+  [0,1,2].forEach(i => document.getElementById('bD'+i).classList.toggle('active', m===i));
+  document.getElementById('allinBox').classList.toggle('show', m===2);
+  renderCarGrid();
+  const cards = document.querySelectorAll('.car-card');
+  const idx = Object.keys(CARS).indexOf(selectedCar);
+  if(idx>=0 && cards[idx]) cards[idx].classList.add('selected');
+  calcEst();
+}
+
+window.toggleAlamat = function() {
+  const lokasi = document.getElementById('fLok').value;
+  const f = document.getElementById('alamatField');
+  const fa = document.getElementById('fAlamat');
+  f.classList.toggle('hidden', lokasi !== 'Kota Medan');
+  fa.required = lokasi === 'Kota Medan';
+  if(lokasi !== 'Kota Medan') fa.value = '';
+}
+
+window.calcEst = function() {
+  const s = document.getElementById('fStart').value;
+  const e = document.getElementById('fEnd').value;
+  if(!s||!e) return;
+  const days = Math.ceil((new Date(e+'T00:00:00') - new Date(s+'T00:00:00')) / 86400000) + 1;
+  if(days <= 0) return;
+  const car = CARS[selectedCar];
+  const harga = driverMode === 2 && car.priceAllin ? car.priceAllin : car.price;
+  const total = harga * days;
+  const tipeLbl = driverMode===2 ? '🏙️ All In Dalam Kota' : (driverMode===0?'🧑‍✈️ Dengan Supir':'🔑 Lepas Kunci');
+  document.getElementById('estBox').classList.remove('hidden');
+  document.getElementById('estTxt').textContent = fmt(total);
+  document.getElementById('estDetail').textContent = `${tipeLbl} • ${days} hari × ${fmt(harga)}/hari`;
+  return { days, total, harga };
+}
+
+document.getElementById('bForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Menyimpan...';
+
+  const s = document.getElementById('fStart').value;
+  const en = document.getElementById('fEnd').value;
+  const days = Math.ceil((new Date(en+'T00:00:00') - new Date(s+'T00:00:00')) / 86400000) + 1;
+  if(days <= 0) { alert('Tanggal pengembalian harus setelah tanggal penjemputan!'); btn.disabled=false; btn.innerHTML='🚀 PESAN SEKARANG → KIRIM KE WHATSAPP'; return; }
+  const car = CARS[selectedCar];
+  const harga = driverMode === 2 && car.priceAllin ? car.priceAllin : car.price;
+  const lokasi = document.getElementById('fLok').value;
+  const alamat = document.getElementById('fAlamat').value;
+  const lokasiLengkap = lokasi === 'Kota Medan' && alamat ? `${lokasi} - ${alamat}` : lokasi;
+  const tipeDriver = driverMode===0 ? 'driver' : (driverMode===1 ? 'selfDrive' : 'allinKota');
+
+  const bk = {
+    id: newId(),
+    createdAt: new Date().toISOString(),
+    nama: document.getElementById('fNama').value,
+    wa: document.getElementById('fWa').value,
+    email: document.getElementById('fEmail').value || '',
+    ktp: document.getElementById('fKtp').value || '',
+    car: selectedCar,
+    carLabel: car.label,
+    withDriver: driverMode === 0,
+    tipeDriver,
+    startDate: s,
+    endDate: en,
+    waktu: document.getElementById('fWkt').value,
+    lokasi: lokasiLengkap,
+    catatan: document.getElementById('fCt').value || '-',
+    days,
+    carPrice: harga,
+    totalPrice: harga * days,
+    status: 'pending',
+    paymentStatus: 'unpaid',
+    driverName: '',
+    driverPhone: '',
+    vehiclePlate: '',
+    paymentMethod: '',
+    invoiceUrl: '',
+    carPhotos: [],
+    confirmedAt: null,
+    completedAt: null,
+  };
+
+  try {
+    await setDoc(doc(db, 'bookings', bk.id), bk);
+  } catch(err) {
+    console.error('Firebase error:', err);
+    // Fallback to localStorage
+    const all = JSON.parse(localStorage.getItem('dz_bk')||'{}');
+    all[bk.id] = bk;
+    localStorage.setItem('dz_bk', JSON.stringify(all));
+  }
+
+  lastBookingId = bk.id;
+  const link = `${window.location.origin}${TRACKING_URL}?id=${bk.id}`;
+  const tipeLbl = driverMode===2?'Mobil Supir All In (BBM+Makan Supir)':(driverMode===0?'Dengan Supir':'Lepas Kunci');
+  const msg =
+`🚗 *BOOKING BARU — Dearma Jaya Transport*
+━━━━━━━━━━━━━━━━━━━━━
+🔖 *ID Pesanan: ${bk.id}*
+
+👤 *DATA PENYEWA*
+• Nama        : ${bk.nama}
+• No. WA      : ${bk.wa}
+• Email       : ${bk.email || '-'}
+• No. KTP/SIM : ${bk.ktp || '-'}
+
+🚙 *KENDARAAN*
+• Mobil       : ${bk.carLabel}
+• Layanan     : ${tipeLbl}
+
+📅 *DETAIL SEWA*
+• Penjemputan : ${fmtD(s)} pukul ${bk.waktu}
+• Pengembalian: ${fmtD(en)}
+• Durasi      : ${days} hari
+• Lokasi      : ${lokasiLengkap}
+
+💰 *ESTIMASI BIAYA*
+• ${fmt(harga)} × ${days} hari = *${fmt(harga * days)}*
+
+📝 Catatan: ${bk.catatan}
+
+🔗 Link Tracking: ${link}
+━━━━━━━━━━━━━━━━━━━━━`;
+
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+  document.getElementById('oId').textContent = bk.id;
+  document.getElementById('overlay').classList.add('show');
+  e.target.reset();
+  driverMode = 0;
+  [0,1,2].forEach(i => document.getElementById('bD'+i).classList.toggle('active', i===0));
+  document.getElementById('allinBox').classList.remove('show');
+  document.getElementById('estBox').classList.add('hidden');
+  document.getElementById('alamatField').classList.add('hidden');
+  btn.disabled = false;
+  btn.innerHTML = '🚀 PESAN SEKARANG → KIRIM KE WHATSAPP';
+  renderCarGrid();
+});
+
+window.copyLink = function() {
+  if(!lastBookingId) return;
+  navigator.clipboard.writeText(`${window.location.origin}${TRACKING_URL}?id=${lastBookingId}`)
+    .then(()=>{ document.getElementById('oCopy').textContent = '✓ Link Berhasil Disalin!'; });
+}
+window.goTrack = function() { if(lastBookingId) window.location.href = `${TRACKING_URL}?id=${lastBookingId}`; }
+window.closeOverlay = function() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('oCopy').textContent = '📋 Salin Link Tracking Pesanan';
+}
+
+// Init
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('fStart').min = today;
+document.getElementById('fEnd').min = today;
+loadCars();
+</script>
+</body>
+</html>

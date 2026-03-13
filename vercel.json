@@ -1,9 +1,7 @@
 {
-  "routes": [
-    { "src": "/api/(.*)",            "dest": "/api/$1" },
-    { "src": "/admin",               "dest": "/public/admin.html" },
-    { "src": "/tracking(.*)",        "dest": "/public/tracking.html" },
-    { "src": "/(.*\\.(png|jpg|jpeg|gif|svg|ico|webp))", "dest": "/public/$1" },
-    { "src": "/",                    "dest": "/public/index.html" }
+  "rewrites": [
+    { "source": "/admin",       "destination": "/admin.html" },
+    { "source": "/tracking",    "destination": "/tracking.html" },
+    { "source": "/tracking/:path*", "destination": "/tracking.html" }
   ]
 }
